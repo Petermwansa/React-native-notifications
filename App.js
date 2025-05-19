@@ -13,16 +13,30 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
-  useEffect(() => {
-    const requestPermissions = async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Notification permissions not granted!');
-      }
-    };
 
-    requestPermissions();
-  }, []);
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      console.log('NOTIFICATION RECEIVED');
+      console.log(notification);
+      const userName = notification.request.content.data.userName;
+      console.log(userName);
+    });
+
+    const subscription2 = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('NOTIFICATION RESPONSE RECEIVED');
+      console.log(response);
+      const userName = response.notification.request.content.data.userName;
+      console.log("The response came from: " + userName);
+      
+    })
+
+    return () => {
+      subscription.remove();
+      subscription2.remove();
+    }
+  }, [])
+
+
 
   const scheduleNotificationHandler = async () => {
     await Notifications.scheduleNotificationAsync({
